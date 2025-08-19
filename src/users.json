@@ -5,12 +5,22 @@
         "password": "1234",
         "role": "admin"
     },
-
     {
         "id": 2,
         "username": "user",
-        "passwword": "abcd",
+        "password": "abcd",
+        "role": "user"
+    },
+    {
+        "id": 3,
+        "username": "saulo",
+        "password": "123",
+        "role": "user"
+    },
+    {
+        "id": 5,
+        "username": "pedro",
+        "password": "5678",
         "role": "user"
     }
-
 ]

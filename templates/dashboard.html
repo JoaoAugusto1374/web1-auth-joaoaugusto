@@ -1,10 +1,99 @@
 <!DOCTYPE html>
-<html>
-<head><title>Dashboard</title></head>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 50px; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        input, select, button { margin: 5px; padding: 5px; }
+        form { display: flex; align-items: center; flex-wrap: wrap; }
+    </style>
+</head>
 <body>
-  <h1>Dashboard</h1>
-  <p>Usuário: {{ username }}</p>
-  <p>Role: {{ role }}</p>
-  <a href="{{ url_for('logout') }}">Sair</a>
+    <h1>Dashboard</h1>
+    <p>Bem-vindo, <strong>{{ username }}</strong>! Role: <strong>{{ role }}</strong></p>
+
+    <h2>Usuários</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th><th>Username</th><th>Role</th><th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="usersTable">
+            {% for user in users %}
+            <tr data-id="{{ user.id }}">
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.role }}</td>
+                <td>
+                    <button onclick="deleteUser({{ user.id }})">Deletar</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Cadastrar novo usuário</h2>
+    <form id="addUserForm">
+        <input type="text" name="username" placeholder="Usuário" required>
+        <input type="password" name="password" placeholder="Senha" required>
+        <select name="role" required>
+            <option value="">Selecione a role</option>
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+        </select>
+        <button type="submit">Adicionar</button>
+    </form>
+
+    <form id="logoutForm">
+        <button type="submit">Logout</button>
+    </form>
+
+    <script>
+        // Adicionar usuário
+        document.getElementById("addUserForm").addEventListener("submit", async e => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+                username: formData.get("username"),
+                password: formData.get("password"),
+                role: formData.get("role")
+            };
+
+            const res = await fetch("/dashboard", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            const result = await res.json();
+            alert(result.message || result.error);
+            if(res.ok) location.reload();
+        });
+
+        // Deletar usuário
+        async function deleteUser(id){
+            if(!confirm("Deseja realmente deletar este usuário?")) return;
+            const res = await fetch("/dashboard", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({id})
+            });
+            const result = await res.json();
+            alert(result.message || result.error);
+            if(res.ok) location.reload();
+        }
+
+        // Logout
+        document.getElementById("logoutForm").addEventListener("submit", async e => {
+            e.preventDefault();
+            const res = await fetch("/logout", { method: "POST" });
+            const result = await res.json();
+            alert(result.message || result.error);
+            if(res.ok) window.location.href = "/";
+        });
+    </script>
 </body>
 </html>
